@@ -1,0 +1,25 @@
+
+
+<form method="post">
+    <input type=text name=url>
+    <p>
+        <input type=submit value='check ezproxy'>
+        </p>
+</form>
+
+{% if response %}
+
+    {% for url, proxy in response.items() %}
+        {% if proxy == 'true' %}
+        <p class="known" style="color:green">{{ url|e }} is known to ezproxy</p>
+        {% else %}
+        <p class="not_known" style="color:red">{{ url|e }} is not know to ezproxy</p>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% if error %}
+<h1>There was an error</h1>
+<p>{{ error }}</p>
+{% endif %}
+
