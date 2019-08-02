@@ -3,8 +3,11 @@ import requests
 import os
 import requests
 import json
-import dotenv
+from dotenv import load_dotenv
 import xml.etree.ElementTree as ET
+
+#flask command does this on its own. we need to do it explicity for gunicorn
+load_dotenv('.env')
 
 # Check for environment variables
 if not os.getenv("PROXY_URL_PASSWORD"):
@@ -31,16 +34,15 @@ def index():
             xml_request_data = ET.tostring(root)
             # send the xml request to ezproxy's API
             try:
-                print(xml_request_data)
                 response = requests.post(EZPROXY_API, data=xml_request_data)
                 response.raise_for_status()
                 proxy_doc = ET.fromstring(response.content)
-                print(ET.dump(proxy_doc))
                 return_dict = {}
+                # populate a dictionary with the response data from ezproxy
                 for u in proxy_doc.findall('./proxy_urls/url'):
                     orig_url = u.text
                     return_dict[orig_url] = u.get('proxy')
-                # handle HTTP Accept headers
+                # handle HTTP Accept headers for json
                 if request.headers['Accept'] == "application/json" :
                     return jsonify(return_dict)
                 return render_template('index.html', response = return_dict)
@@ -50,4 +52,3 @@ def index():
     return render_template('index.html')
 
 
-    
