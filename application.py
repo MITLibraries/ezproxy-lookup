@@ -50,5 +50,3 @@ def index():
                 return render_template('index.html', error = err)
         
     return render_template('index.html')
-
-
