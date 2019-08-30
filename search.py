@@ -7,8 +7,6 @@ with open("ezproxy_config.json", "r") as read_file:
 
 subs = input()
 
-
-for config_file, stanzas in data.items():
-    for stanza in stanzas:
-        if subs in stanza['urls']:
-            print(config_file)
+for stanza in data:
+    if subs in stanza.get('urls','empty'):
+        print(json.dumps(stanza))
