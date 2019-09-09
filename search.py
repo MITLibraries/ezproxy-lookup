@@ -1,7 +1,7 @@
 import json
 
 
-with open("ezproxy_config.json", "r") as read_file:
+with open("config.json", "r") as read_file:
     data = json.load(read_file)
 
 
@@ -9,4 +9,4 @@ subs = input()
 
 for stanza in data:
     if subs in stanza.get('urls','empty'):
-        print(json.dumps(stanza))
+        print(stanza['title'], stanza['config file'])
