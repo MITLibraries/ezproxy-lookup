@@ -12,12 +12,15 @@
 
 {% if response %}
 
-    {% for url, proxy in response.items() %}
-        {% if proxy == 'true' %}
-        <p class="known" style="color:green">{{ url|e }} is known to ezproxy</p>
-        {% else %}
-        <p class="not_known" style="color:red">{{ url|e }} is not know to ezproxy</p>
-        {% endif %}
+<p>search term: {{ search_term }}</p>
+    {% for stanza in response %}
+        
+        <p>
+            <ul class="found" style="color:green">
+                <li>Stanza Title: {{ stanza['title']|e }} </li>
+                <li>Config file: {{ stanza['config file']|e }}</li>
+            </ul>
+        </p>
     {% endfor %}
 {% endif %}
 
