@@ -20,7 +20,6 @@ def index_post():
         # check for form data
         url = request.form.get('url')
         if url:
-            print(request.form['url'])
             search_results = list()
             search_term = request.form['url']
             for stanza in data:

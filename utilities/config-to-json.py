@@ -1,3 +1,16 @@
+# This script parses our ezproxy config.txt file into JSON to be used by
+# our ezproxy-lookup app.
+#
+# it is aware of ezproxy's includefile directive, and will 
+# parse the contents of "included" config files. 
+#
+# it returns a JSON formatted list of objects representing ezproxy database stanzas
+# each stanza in the list has the following keys:
+#   title: from the 'title' directive for the stanza
+#   config_file: the config file containing the stanza, e.g. econtrol_config.txt
+#   urls: an array of the URLs from the Host, Domain, and Url directives for the stanza
+
+
 import re
 import json
 import sys

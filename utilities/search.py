@@ -1,3 +1,6 @@
+# a command line untility to quickly search through the JSON output of config-to-json.py
+# 
+
 import json
 import sys
 
