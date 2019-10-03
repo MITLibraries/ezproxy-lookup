@@ -18,6 +18,11 @@
                 <ul class="found" style="color:green">
                     <li>Stanza title: {{ stanza['title']|e }} </li>
                     <li>Config file: {{ stanza['config_file']|e }}</li>
+                    <ul>
+                        {% for url in stanza['urls'] %}
+                            <li>{{ url }} </li>
+                        {% endfor %}
+                    </ul>
                 </ul>
             </p>
         {% endfor %}
