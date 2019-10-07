@@ -1,0 +1,43 @@
+
+<h1>Check Ezproxy for a configured URL</h1>
+<p>look up whether Ezproxy has been configured to proxy a particular URL.</p>
+<form action="/" method=post>
+        <input type=text name=url id=url aria-label="enter a url to check in ezproxy" placeholder="e.g. jstor.org">
+        <input type=submit value='check ezproxy' aria-label="check ezproxy">
+        
+</form> 
+<p>Or <a href="/econtrol">show all econtrol resources</a></p>
+
+{% if search_term %}
+<p>you searched for: <b>{{ search_term }}</b></p>
+    {% if response %}
+        <h2>The following resources matched your search:</h2>
+        {% for stanza in response %}
+            
+            <p>
+                <ul class="found" style="color:green">
+                    <li>Stanza title: {{ stanza['title']|e }} </li>
+                    <li>Config file: {{ stanza['config_file']|e }}</li>
+                    <ul>
+                        {% for url in stanza['urls'] %}
+                            <li>{{ url }} </li>
+                        {% endfor %}
+                    </ul>
+                </ul>
+            </p>
+        {% endfor %}
+    {% else %}
+    <p style="color:red">no resources with that URL are configured for proxying.</p> 
+    <p>Having trouble?
+    <ul>
+        <li>Try searching for just the domain portion of the url - e.g. <em>mit.edu</em> NOT <em>libraries.mit.edu</em></li>
+        <li>Try removing the <em>http://</em> or <em>https://</em> from your search</li>
+    </ul>
+    </p>
+    {% endif %}
+{% endif %}
+
+{% if error %}
+<h1>There was an error</h1>
+<p>{{ error }}</p>
+{% endif %}
