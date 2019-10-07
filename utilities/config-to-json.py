@@ -33,7 +33,7 @@ except IndexError:
     print(
         f'''
 please provide the full path to an ezproxy config file
-Usage: python {sys.argv[0]} [FILE]
+Usage: python {sys.argv[0]} /path/to/ezproxy config
         ''')
     sys.exit(1)  # abort
 
