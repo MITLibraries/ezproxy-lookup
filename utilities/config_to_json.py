@@ -26,16 +26,19 @@ import sys
 from pathlib import Path
 
 
-try:
-    ezproxy_base_config_path = Path(sys.argv[1])
+def main():
+    try:
+        ezproxy_base_config_path = Path(sys.argv[1])
+        all_stanzas = parse_config(ezproxy_base_config_path)
+        print(json.dumps(all_stanzas))
 
-except IndexError:
-    print(
-        f'''
+    except IndexError:
+        print(
+            f'''
 please provide the full path to an ezproxy config file
 Usage: python {sys.argv[0]} /path/to/ezproxy config
         ''')
-    sys.exit(1)  # abort
+        sys.exit(1)  # abort
 
 
 # regular expression for parsing stanzas. First capture group is for t(itle),
@@ -71,10 +74,10 @@ def parse_config(path_to_config):
     """
 
     # a list to hold all of the stanzas in the config file
-    stanzas = list()
+    stanzas = []
 
     # a dict to hold the current stanza
-    currentstanza = dict()
+    currentstanza = {}
 
     with path_to_config.open() as f:
         for line in f:
@@ -87,19 +90,19 @@ def parse_config(path_to_config):
                 # the regex finds a directive
                 directive = stanza_regex.search(line)
 
-                # if includefile directive is encountered
+                # if includefile directive is encountered get the name of the
+                # included file
                 if directive.group(1).lower() == "includefile":
                     included_config = path_to_config.with_name(
                         directive.group(2).strip())
 
-                    # An Includefile directive indicates we've reached the
-                    # start of a new stanza. if there is an existing current
+                    # An Includefile directive indicates the
+                    # end of a stanza. if there is an existing current
                     # stanza append it to the list of stanzas
                     # Start a new current stanza.
                     if currentstanza:
-                        stanzas.append(currentstanza.copy())
-                        currentstanza = dict()
-
+                        stanzas.append(currentstanza)
+                        currentstanza = {}
                     # parse the contents of the included config file and
                     # return a list of stanzas
                     included_stanzas = parse_config(included_config)
@@ -117,16 +120,14 @@ def parse_config(path_to_config):
                     # if there is an existing current stanza append it to the
                     # list of stanzas
                     if currentstanza:
-                        stanzas.append(currentstanza.copy())
+                        stanzas.append(currentstanza)
 
-                    # set the title
-                    currentstanza["title"] = directive.group(2)
-
-                    # set the config file
-                    currentstanza["config_file"] = path_to_config.name
-
-                    # initialize an empty list of URLs
-                    currentstanza["urls"] = list()
+                    # set the title for a new stanza
+                    currentstanza = {
+                        "title": directive.group(2),
+                        "config_file": path_to_config.name,
+                        "urls": list()
+                    }
 
                 # otherwise it is a url, host, or domain directive
                 # strip out paths and query params from the url
@@ -136,14 +137,12 @@ def parse_config(path_to_config):
                     if matched_url:
                         currentstanza["urls"].append(matched_url.group(1))
 
-        # we reached the end of the file. add the last stanza to the list
-        # of stanzas
-        if currentstanza:
-            stanzas.append(currentstanza.copy())
-
-        # return the list of stanzas
+    # we reached the end of the file. add the last stanza to the list
+    # of stanzas
+    if currentstanza:
+        stanzas.append(currentstanza)
         return stanzas
 
 
-all_stanzas = parse_config(ezproxy_base_config_path)
-print(json.dumps(all_stanzas))
+if __name__ == "__main__":
+    main()
