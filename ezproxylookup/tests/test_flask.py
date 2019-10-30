@@ -1,14 +1,9 @@
-
-import pytest
-from ezproxylookup import app
+from ezproxylookup.views import get_file
 
 
-@pytest.fixture
-def client():
-    app.config['TESTING'] = True
-    app.config['SERVER_NAME'] = 'localhost'
-    client = app.test_client()
-    return client
+def test_get_file(s3_conn):
+    f = get_file()
+    assert f[0]['title'] == 'A Title'
 
 
 def test_route_get(client):
@@ -44,7 +39,7 @@ def test_route_post_json_data(client):
     assert response.get_json()['search_term'] == search_term
 
 
-def test_route_econtrol(client):
+def test_route_econtrol(client, s3_conn):
     """ econtrol returns 200 """
     response = client.get('/econtrol')
     assert response.status_code == 200

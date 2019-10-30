@@ -7,6 +7,7 @@ verify_ssl = true
 pylint = "*"
 flake8 = "*"
 autopep8 = "*"
+pytest = "*"
 
 [packages]
 astroid = "*"
@@ -37,6 +38,7 @@ Flask = "*"
 Jinja2 = "*"
 MarkupSafe = "*"
 Werkzeug = "*"
+moto = "*"
 
 [requires]
 python_version = "3.7"
