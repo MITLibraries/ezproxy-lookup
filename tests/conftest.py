@@ -19,7 +19,7 @@ def fake_config_json():
 
 @pytest.fixture(autouse=True)
 def aws_credentials(monkeypatch):
-    monkeypatch.setenv('AWS_BUCKET', 'samples')
+    monkeypatch.setenv('AWS_BUCKET_NAME', 'samples')
 
 
 @pytest.yield_fixture
