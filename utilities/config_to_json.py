@@ -21,17 +21,35 @@
 ########################################
 
 import re
-import json
 import sys
 from pathlib import Path
 
 
 def main():
     try:
-        ezproxy_base_config_path = Path(sys.argv[1])
-        all_stanzas = parse_config(ezproxy_base_config_path)
-        print(json.dumps(all_stanzas))
+        with open(sys.argv[1]) as f:
+            base_config_file = f.read()
+        config_file_path = Path(sys.argv[1])
 
+        # get included files from base file
+        include_file_names = get_included_files(base_config_file)
+
+        # add base config file name to list of file names
+        config_files = include_file_names + [config_file_path.name]
+
+        # get contents from each config file
+        config_file_data = [
+            {"config_file": file_name,
+             "content": get_config_contents(config_file_path.with_name
+                                            (file_name))}
+            for file_name in config_files]
+
+        # parse the data from each file
+        results = []
+        for data in config_file_data:
+            if get_stanzas(data):
+                results.extend(get_stanzas(data))
+        print(results)
     except IndexError:
         print(
             f'''
@@ -44,8 +62,8 @@ Usage: python {sys.argv[0]} /path/to/ezproxy config
 # regular expression for parsing stanzas. First capture group is for t(itle),
 # h(ost), d(omain, or u(rl) keywords. second capture group is for the value for
 # that keyword
-stanza_regex = re.compile(r"""^(t(?:itle)?|h(?:ost)?j?|d(?:omain)?j?|u(?:rl)?|
-                        includefile)\s(.*)$""", re.I | re.X)
+stanza_regex = re.compile(r"""^(t(?:itle)?|h(?:ost)?j?|d(?:omain)?j?|
+u(?:rl)?)\s(.*)$""", re.I | re.X | re.MULTILINE)
 
 # regular expression for matching url-like strings and removing paths
 # and query string params
@@ -61,82 +79,75 @@ url_regex = re.compile(r"""
     $""", re.I | re.X)
 
 
-def parse_config(path_to_config):
-    """Parse an ezproxy config file.
+def get_included_files(base_config_file_text):
+    """ return a list of the file names from the includefile directives found
+    in a config file """
+    matches = re.findall(r"""^(includefile)\s(.*)$""", base_config_file_text,
+                         re.I | re.X | re.M)
+    included_files = [match[1].strip() for match in matches]
+    return(included_files)
 
-    Returns a list of stanza objects reprensenting the database
-    stanzas in an ezproxy config file. It will also try to
-    parse any additional config files mentioned in an IncludeFile
-    directive in the config file
 
+def get_config_contents(config_file_name):
+    """ returns a list of strings from a config file
 
-    :param path_to_config: the path to an exproxy config file
+    returns '' if file cannot be opened
+
+    config_file_name: the path of a config file
+
     """
+    try:
+        with open(config_file_name) as f:
+            return(f.readlines())
+    except IOError:
+        return ''
 
+
+def get_stanzas(config_data: str):
+    """ returns a list of stanzas in a config file
+
+        config_data: the contents of a config file a a string
+    """
     # a list to hold all of the stanzas in the config file
     stanzas = []
 
     # a dict to hold the current stanza
     currentstanza = {}
 
-    with path_to_config.open() as f:
-        for line in f:
+    for line in config_data['content']:
 
-            # if we don't find a directive we care about e.g. T(itle), H(ost),
-            # D(omain), U(rl), or includefile,
-            # move to the next line in the config file
-            if stanza_regex.search(line):
+        # if we don't find a directive we care about e.g. T(itle), H(ost),
+        # D(omain), U(rl), or includefile,
+        # move to the next line in the config file
+        if stanza_regex.search(line):
 
-                # the regex finds a directive
-                directive = stanza_regex.search(line)
+            # the regex finds a directive
+            directive = stanza_regex.search(line)
 
-                # if includefile directive is encountered get the name of the
-                # included file
-                if directive.group(1).lower() == "includefile":
-                    included_config = path_to_config.with_name(
-                        directive.group(2).strip())
+            # if a title directive is encountered begin a new stanza
+            if directive.group(1).lower() in ["t", "title"]:
 
-                    # An Includefile directive indicates the
-                    # end of a stanza. if there is an existing current
-                    # stanza append it to the list of stanzas
-                    # Start a new current stanza.
-                    if currentstanza:
-                        stanzas.append(currentstanza)
-                        currentstanza = {}
-                    # parse the contents of the included config file and
-                    # return a list of stanzas
-                    included_stanzas = parse_config(included_config)
+                # A title directive indicates we've reached the start of a
+                # new stanza.
+                # if there is an existing current stanza append it to the
+                # list of stanzas
+                if currentstanza:
+                    stanzas.append(currentstanza)
 
-                    # if the included config file contains stanzas add them
-                    # to our list
-                    if included_stanzas:
-                        stanzas.extend(included_stanzas)
+                # set the title for a new stanza
+                currentstanza = {
+                    "title": directive.group(2),
+                    "config_file": config_data['config_file'],
+                    "urls": list()
+                }
 
-                # if a title directive is encountered begin a new stanza
-                elif directive.group(1).lower() in ["t", "title"]:
-
-                    # A title directive indicates we've reached the start of a
-                    # new stanza.
-                    # if there is an existing current stanza append it to the
-                    # list of stanzas
-                    if currentstanza:
-                        stanzas.append(currentstanza)
-
-                    # set the title for a new stanza
-                    currentstanza = {
-                        "title": directive.group(2),
-                        "config_file": path_to_config.name,
-                        "urls": list()
-                    }
-
-                # otherwise it is a url, host, or domain directive
-                # strip out paths and query params from the url
-                # add the url to the urls list in the current stanza
-                else:
-                    matched_url = re.search(url_regex, directive.group(2))
-                    if matched_url:
-                        currentstanza["urls"].append(matched_url.group(1))
-
+            # otherwise it is a url, host, or domain directive
+            # strip out paths and query params from the url
+            # add the url to the urls list in the current stanza
+            else:
+                matched_url = re.search(url_regex, directive.group(2))
+                if matched_url:
+                    currentstanza["urls"].append(matched_url.group(1))
     # we reached the end of the file. add the last stanza to the list
     # of stanzas
     if currentstanza:
