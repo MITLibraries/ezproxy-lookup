@@ -1,17 +1,6 @@
-import os
 from flask import request, jsonify, render_template, url_for, redirect
-import json
-import boto3
 from ezproxylookup import app
-
-
-# get config.json from s3 bucket.
-def get_file():
-    s3 = boto3.resource('s3')
-    obj = s3.Object(os.getenv('AWS_BUCKET_NAME'), 'config.json')
-    body = obj.get()['Body'].read()
-    data = json.loads(body)
-    return data
+from ezproxylookup.helpers import get_file
 
 
 @app.route("/", methods=['POST'])
