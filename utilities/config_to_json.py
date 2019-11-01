@@ -23,6 +23,7 @@
 import re
 import sys
 from pathlib import Path
+import json
 
 
 def main():
@@ -49,7 +50,7 @@ def main():
         for data in config_file_data:
             if get_stanzas(data):
                 results.extend(get_stanzas(data))
-        print(results)
+        print(json.dumps(results))
     except IndexError:
         print(
             f'''
@@ -106,7 +107,7 @@ def get_config_contents(config_file_name):
 def get_stanzas(config_data: str):
     """ returns a list of stanzas in a config file
 
-        config_data: the contents of a config file a a string
+        config_data: the contents of a config file as a string
     """
     # a list to hold all of the stanzas in the config file
     stanzas = []
