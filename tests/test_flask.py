@@ -1,9 +1,26 @@
-from ezproxylookup.views import get_file
+from ezproxylookup.views import get_json_file
+import os
 
 
-def test_get_file(s3_conn):
-    f = get_file()
+def test_get_json_file_from_s3(s3_conn):
+    os.environ['CONFIG_FILE_LOCATION'] = "aws-s3"
+    f = get_json_file()
     assert f[0]['title'] == 'A Title'
+
+
+def test_get_json_file_from_local_default():
+    """ uses default local file when no location is given """
+    del os.environ['CONFIG_FILE_LOCATION']
+    f = get_json_file()
+    assert f[0]['title'] == 'included fake title number one'
+
+
+def test_get_json_file_from_local_specified():
+    """ uses the local file specified in ENV """
+    os.environ['CONFIG_FILE_LOCATION'] = "tests\
+/fixtures/other_fake_config.json"
+    f = get_json_file()
+    assert f[0]['title'] == 'other fake config file'
 
 
 def test_route_get(client):

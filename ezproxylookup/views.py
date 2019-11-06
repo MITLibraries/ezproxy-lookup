@@ -1,6 +1,6 @@
 from flask import request, jsonify, render_template, url_for, redirect
 from ezproxylookup import app
-from ezproxylookup.helpers import get_file
+from ezproxylookup.helpers import get_json_file
 
 
 @app.route("/", methods=['POST'])
@@ -8,7 +8,7 @@ def index_post():
     # check for form data
     search_term = request.form.get('url')
     if search_term:
-        data = get_file()
+        data = get_json_file()
         # return any stanzas containing matching urls
         search_results = [
             stanza for stanza in data if search_term in stanza['urls']]
@@ -30,7 +30,7 @@ def index_get():
 
 @app.route("/econtrol")
 def econtrol():
-    data = get_file()
+    data = get_json_file()
     # return list of stanzas where config_file = "econtrol_config.txt"
     result = [stanza for stanza in data if "econtrol_config"
               in stanza['config_file']]
