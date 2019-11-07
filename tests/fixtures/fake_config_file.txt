@@ -1,0 +1,35 @@
+Option ProxyByHostname
+Option AllowHTTPLogin
+Option StatusUser
+Option LogSession
+
+LoginPort 80
+LoginPortSSL 443
+
+LogFile -strftime ezp%Y%m%d.log
+LogSPU  -strftime spu%Y%m%d.txt %{%Y/%m/%d:%H:%M:%S}t\t%h\t%u\t%
+{ezproxy-spuaccess}i\t%v\t%U
+
+RejectIP 18.181.5.140
+RejectIP 18.238.0.94
+
+T fake title number one
+U http://fake.url-number.one
+HosT https://fake.url-number.one
+DJ url-number.one
+
+Includefile included_fake_config.txt 
+Includefile missing_config.txt
+Includefile included_fake_ip_config.txt
+
+T fake title number two
+U http://fake.url-number.two
+HosT https://fake.url-number.two
+bad directive this is not a directive we care about
+Domain url-number.two
+
+T fake title number three
+U http://fake.url-number.three/login?password=my_secret
+HosT https://fake.url-number.three
+DJ url-number.three
+

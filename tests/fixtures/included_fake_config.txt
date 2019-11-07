@@ -1,0 +1,11 @@
+T included fake title number one
+U http://included.fake.url-number.one
+HosT https://included.fake.url-number.one
+bad directive this is not a directive we care about
+Domain url-number.one
+
+Title included fake title number two
+U http://included.fake.url-number.two
+HosT https://included.fake.url-number.two/?password=my_secret
+bad directive this is not a directive we care about
+Domain url-number.two

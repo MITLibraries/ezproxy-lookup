@@ -14,14 +14,22 @@ There are some legacy perl scripts that perform a similar function. They use an 
 https://wikis.mit.edu/confluence/display/LIBPROXSERV/Proxy+lookup+scripts
 
 ## Things to Know
-- Use [utilities/config-to-json.py](https://github.com/MITLibraries/ezproxy-lookup/blob/master/utilities/config-to-json.py) to parse the ezproxy config.txt file into JSON to be used by ezproxy-lookup. 
-- [utilities/search.py](https://github.com/MITLibraries/ezproxy-lookup/blob/master/utilities/config-to-json.py) is a command line script to help with debugging the JSON output from config-to-json.py. (so you don't have to start up the whole flask app.) 
+- Use [utilities/config_to_json.py](https://github.com/MITLibraries/ezproxy-lookup/blob/master/utilities/config_to_json.py) to parse the ezproxy config.txt file into JSON to be used by ezproxy-lookup. 
+- [utilities/search.py](https://github.com/MITLibraries/ezproxy-lookup/blob/master/utilities/search.py) is a command line script to help with debugging the JSON output from config_to_json.py. (so you don't have to start up the whole flask app.)
 - No authentication or authorization is required to use the web ui or API. [utilities/config-to-json.py](https://github.com/MITLibraries/ezproxy-lookup/blob/master/utilities/config-to-json.py) removes any sensitive information from our config files. 
 - We are using a heroku deployment pipeline currently deploying master branch automatically to https://ezproxy-lookup-stage.herokuapp.com/
+
 
 ## Required Environment Variables
 - `AWS_ACCESS_KEY_ID` : for the ezproxy-lookup user (readonly)
 - `AWS_SECRET_ACCESS_KEY` : for the ezproxy-lookup user (readonly)
+- `AWS_BUCKET_NAME` : name of s3 bucket containing JSON created by [utilities/config_to_json.py](https://github.com/MITLibraries/ezproxy-lookup/blob/master/utilities/config_to_json.py)
+- `CONFIG_FILE_LOCATION` [optional]: The location of the config.json file.
+    - If not set, default to the file at tests/fixtures/config.json.
+    - A value of `aws-s3` will try to get the file `config.json` from the  bucket `AWS_BUCKET_NAME`.
+    - A path to a file will use that file:
+        - e.g. CONFIG_FILE_LOCATION="path/to/config.json" 
+
 
 ## API usage
 - you can `POST` a `URL` with header set to `Accept: application/json` to get a JSON response
