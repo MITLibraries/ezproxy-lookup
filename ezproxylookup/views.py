@@ -31,11 +31,10 @@ def index_get():
 @app.route("/econtrol")
 def econtrol():
     data = get_json_file()
-    # return list of stanzas where config_file = "econtrol_config.txt"
-    result = [stanza for stanza in data if "econtrol_config"
+    # return list of titles where config_file = "econtrol_config.txt"
+    result = [stanza['title'] for stanza in data if "econtrol_config"
               in stanza['config_file']]
     return render_template(
-        'index.html',
-        search_term='all econtrol resources',
+        'econtrol.html',
         response=result
         )

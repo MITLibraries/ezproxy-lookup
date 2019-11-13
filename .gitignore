@@ -105,5 +105,5 @@ venv.bak/
 
 .vscode
 config.json
-urls.txt
-utilities/printurls.py
+
+

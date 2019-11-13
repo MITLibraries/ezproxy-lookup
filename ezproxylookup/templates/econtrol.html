@@ -1,0 +1,15 @@
+
+<h1>Resources currently under e-control for all users</h1>
+
+{% if response %}
+    <ul class="found">
+        {% for title in response | sort %}
+            <li>{{ title|e }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if error %}
+<h1>There was an error</h1>
+<p>{{ error }}</p>
+{% endif %}
