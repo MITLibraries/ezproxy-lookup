@@ -50,6 +50,7 @@ def main():
         for data in config_file_data:
             if get_stanzas(data):
                 results.extend(get_stanzas(data))
+        results = filter_stanzas(results)
         print(json.dumps(results))
     except IndexError:
         print(
@@ -154,6 +155,15 @@ def get_stanzas(config_data: str):
     if currentstanza:
         stanzas.append(currentstanza)
         return stanzas
+
+
+def filter_stanzas(stanzas):
+    """filters things out of stanazs"""
+    filtered_stanzas = []
+    for stanza in stanzas:
+        if '-hide' not in stanza['title'].lower():
+            filtered_stanzas.append(stanza)
+    return filtered_stanzas
 
 
 if __name__ == "__main__":

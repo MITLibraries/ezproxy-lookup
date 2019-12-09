@@ -1,5 +1,5 @@
 from utilities.config_to_json import (get_included_files, get_config_contents,
-                                      get_stanzas)
+                                      get_stanzas, filter_stanzas)
 import pytest
 import os
 
@@ -44,7 +44,15 @@ def test_get_stanzas(config_results):
     assert any(['http://fake.url-number.three' in s for s in url_list])
 
 
-def test_parse_config_keys(config_results):
-    """parse_config list contains only title, urls, and config_file keys """
+def test_get_stanzas_keys(config_results):
+    """get_stanzas list contains only title, urls, and config_file keys """
     keys = set().union(*(d.keys()for d in config_results))
     assert {'urls', 'title', 'config_file'} == keys
+
+
+def test_filter_stanzas(config_results):
+    """filter_stanazas removes stanzas with a -hide flag in the
+    title directive"""
+    x = filter_stanzas(config_results)
+    assert len(config_results) == 4
+    assert len(x) == 3
