@@ -24,42 +24,8 @@ import re
 import sys
 from pathlib import Path
 import json
-
-
-def main():
-    try:
-        with open(sys.argv[1]) as f:
-            base_config_file = f.read()
-        config_file_path = Path(sys.argv[1])
-
-        # get included files from base file
-        include_file_names = get_included_files(base_config_file)
-
-        # add base config file name to list of file names
-        config_files = include_file_names + [config_file_path.name]
-
-        # get contents from each config file
-        config_file_data = [
-            {"config_file": file_name,
-             "content": get_config_contents(config_file_path.with_name
-                                            (file_name))}
-            for file_name in config_files]
-
-        # parse the data from each file
-        results = []
-        for data in config_file_data:
-            if get_stanzas(data):
-                results.extend(get_stanzas(data))
-        results = filter_stanzas(results)
-        print(json.dumps(results))
-    except IndexError:
-        print(
-            f'''
-please provide the full path to an ezproxy config file
-Usage: python {sys.argv[0]} /path/to/ezproxy config
-        ''')
-        sys.exit(1)  # abort
-
+import click
+import logging
 
 # regular expression for parsing stanzas. First capture group is for t(itle),
 # h(ost), d(omain, or u(rl) keywords. second capture group is for the value for
@@ -79,6 +45,64 @@ url_regex = re.compile(r"""
 (?:[\/:?=@&#]{1}.+)?   # in a non capturing group match paths or params
     \/?                # check for trailing slash
     $""", re.I | re.X)
+
+
+@click.command()
+@click.option('--infile', type=click.Path(exists=True), prompt=True,
+              help="filepath to ezproxy config file")
+@click.option('--outfile', type=click.Path(), prompt=True,
+              help="filepath to write output")
+def parse(infile, outfile):
+    """Takes an ezproxy config file and returns a parsed json file
+    to be used by the ezproxy-lookup flask app
+
+    infile: filepath to ezproxy config file
+
+    outfile: filepath to write output
+    """
+
+    logging.basicConfig(level=logging.INFO)
+    try:
+        with open(infile) as f:
+            base_config_file = f.read()
+        config_file_path = Path(infile)
+
+        # get included files from base file
+        included_config_files = get_included_files(base_config_file)
+
+        # add base config file name to list of file names
+        all_config_file_names = []
+        all_config_file_names.extend(included_config_files)
+        all_config_file_names.append(config_file_path.name)
+        logging.info("found config files:%s", str(all_config_file_names)[1:-1])
+
+        # create a list of dicts for each config file. the dicts
+        # have two keys:
+        #     config_file: str which is the name of a config file
+        #     and content: list which is the raw text of that file as
+        # a list of strings
+
+        config_file_data = [
+            {"config_file": file_name,
+                "content": get_config_contents(config_file_path.with_name
+                                               (file_name))}
+            for file_name in all_config_file_names]
+
+        # parse the data from each member of the list config_file_data
+        # members are dicts
+        results = []    # list to hold parsed data
+        for d in config_file_data:
+            if get_stanzas(d):
+                stanzas = get_stanzas(d)
+                logging.info(f"found {len(stanzas)} stanzas in \
+                     {d['config_file']}")
+                results.extend(stanzas)
+        results = filter_stanzas(results)
+        with open(outfile, 'w') as f:
+            f.write(json.dumps(results))
+    except IOError:
+        logging.info(f"could not open config file: {infile}")
+        sys.exit(1)
 
 
 def get_included_files(base_config_file_text):
@@ -105,11 +129,9 @@ def get_config_contents(config_file_name):
         return ''
 
 
-def get_stanzas(config_data: str):
-    """ returns a list of stanzas in a config file
+def get_stanzas(config_data: dict):
+    """ returns a list of stanzas in a config file"""
 
-        config_data: the contents of a config file as a string
-    """
     # a list to hold all of the stanzas in the config file
     stanzas = []
 
@@ -166,5 +188,5 @@ def filter_stanzas(stanzas):
     return filtered_stanzas
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    parse()
