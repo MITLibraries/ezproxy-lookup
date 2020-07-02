@@ -1,6 +1,7 @@
 from flask import request, jsonify, render_template, url_for, redirect
 from ezproxylookup import app
 from ezproxylookup.helpers import get_json_file
+from tld import get_fld
 
 
 @app.route("/", methods=['POST'])
@@ -37,4 +38,19 @@ def econtrol():
     return render_template(
         'econtrol.html',
         response=result
+        )
+
+
+@app.route("/domains")
+def domains():
+    data = get_json_file()
+    # return a list of domains
+    result = [stanza['urls'] for stanza in data if "free_resources_config"
+              not in stanza['config_file']]
+    flat_list = [get_fld(item, fix_protocol=True, fail_silently=True) for
+                 sublist in result for item in sublist]
+    dedupe_list = list(dict.fromkeys(flat_list))
+    return render_template(
+        'domains.html',
+        response=dedupe_list
         )

@@ -39,7 +39,7 @@ Flask = "*"
 Jinja2 = "*"
 MarkupSafe = "*"
 Werkzeug = "*"
-
+tld = "*"
 
 [requires]
 python_version = "3.7"

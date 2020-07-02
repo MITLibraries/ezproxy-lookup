@@ -1,0 +1,15 @@
+
+<h1>domains in ezproxy</h1>
+
+{% if response %}
+    <p>there are {{response|length}} domains</p>
+        {% for domain in response %}
+            {{ domain|e }}<br />
+        {% endfor %}
+    
+{% endif %}
+
+{% if error %}
+<h1>There was an error</h1>
+<p>{{ error }}</p>
+{% endif %}

@@ -62,6 +62,12 @@ def test_route_econtrol(client, s3_conn):
     assert response.status_code == 200
 
 
+def test_route_domains(client, s3_conn):
+    """ all returns 200 """
+    response = client.get('/domains')
+    assert response.status_code == 200
+
+
 def test_route_bad_route(client):
     """ returns 404 with bad route"""
     response = client.get('/not_a_route')
