@@ -46,6 +46,9 @@ def test_get_stanzas(config_results):
                 for item in urls]
     assert not any([url_param in s for s in url_list])
     assert any(['http://fake.url-number.three' in s for s in url_list])
+    assert any(['http://hastrailingwhitespace.com    ' not in s for s in
+                url_list])
+    assert any(['http://hastrailingwhitespace.com' in s for s in url_list])
 
 
 def test_get_stanzas_keys(config_results):
@@ -58,8 +61,8 @@ def test_filter_stanzas(config_results):
     """filter_stanazas removes stanzas with a -hide flag in the
     title directive"""
     x = config_to_json.filter_stanzas(config_results)
-    assert len(config_results) == 4
-    assert len(x) == 3
+    assert len(config_results) == 5
+    assert len(x) == 4
 
 
 def test_click():

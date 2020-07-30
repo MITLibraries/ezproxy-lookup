@@ -28,10 +28,18 @@ HosT https://fake.url-number.two
 bad directive this is not a directive we care about
 Domain url-number.two
 
+T fake title number four
+U http://hastrailingwhitespace.com     
+
 T fake title number three
 U http://fake.url-number.three/login?password=my_secret
 HosT https://fake.url-number.three
 DJ url-number.three
 
+
 T -HIDE hidden title
 U http://hiddentitle.com
+
+
+#T GIS
+#U https://arrowsmith.mit.edu

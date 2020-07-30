@@ -30,8 +30,8 @@ import logging
 # regular expression for parsing stanzas. First capture group is for t(itle),
 # h(ost), d(omain, or u(rl) keywords. second capture group is for the value for
 # that keyword
-stanza_regex = re.compile(r"""^(t(?:itle)?|h(?:ost)?j?|d(?:omain)?j?|
-u(?:rl)?)\s(.*)$""", re.I | re.X | re.MULTILINE)
+stanza_regex = re.compile(r"""^(t(?:itle)?|h(?:ost)?j?|d(?:omain)?j?|u(?:rl)?)\s
+                            (.*)$""", re.I | re.X | re.MULTILINE)
 
 # regular expression for matching url-like strings and removing paths
 # and query string params
@@ -124,7 +124,9 @@ def get_config_contents(config_file_name):
     """
     try:
         with open(config_file_name) as f:
-            return(f.readlines())
+            lines = f.read().splitlines()
+            strippedlines = [line.strip() for line in lines]
+            return(strippedlines)
     except IOError:
         return ''
 
