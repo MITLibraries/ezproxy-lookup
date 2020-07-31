@@ -15,6 +15,8 @@ https://wikis.mit.edu/confluence/display/LIBPROXSERV/Proxy+lookup+scripts
 
 ## Things to Know
 - Use [utilities/config_to_json.py](https://github.com/MITLibraries/ezproxy-lookup/blob/master/utilities/config_to_json.py) to parse the ezproxy config.txt file into JSON to be used by ezproxy-lookup. 
+- [utilities/config_to_json.py](https://github.com/MITLibraries/ezproxy-lookup/blob/master/utilities/config_to_json.py) has a CLI:
+-       python config_to_json.py --help
 - [utilities/search.py](https://github.com/MITLibraries/ezproxy-lookup/blob/master/utilities/search.py) is a command line script to help with debugging the JSON output from config_to_json.py. (so you don't have to start up the whole flask app.)
 - No authentication or authorization is required to use the web ui or API. [utilities/config-to-json.py](https://github.com/MITLibraries/ezproxy-lookup/blob/master/utilities/config-to-json.py) removes any sensitive information from our config files. 
 - We are using a heroku deployment pipeline currently deploying master branch automatically to https://ezproxy-lookup-stage.herokuapp.com/
@@ -30,6 +32,9 @@ https://wikis.mit.edu/confluence/display/LIBPROXSERV/Proxy+lookup+scripts
     - A path to a file will use that file:
         - e.g. CONFIG_FILE_LOCATION="path/to/config.json" 
 
+## Testing
+        pipenv install --dev
+        pytest
 
 ## API usage
 - you can `POST` a `URL` with header set to `Accept: application/json` to get a JSON response
